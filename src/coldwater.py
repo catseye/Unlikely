@@ -13,6 +13,7 @@ from unlikely.scanner import Scanner
 from unlikely.parser import ClassBaseParser
 from unlikely.stdlib import stdlib
 
+
 def load(filename, options):
     f = open(filename, "r")
     scanner = Scanner(f.read())
@@ -23,8 +24,10 @@ def load(filename, options):
         print "---AST---"
         print str(stdlib)
 
+
 def main(argv):
-    optparser = OptionParser("[python] coldwater.py {options} {source.dtr}\n" + __doc__)
+    usage = "[python] coldwater.py {options} {source.unlikely}"
+    optparser = OptionParser(usage + "\n" + __doc__)
     optparser.add_option("-a", "--dump-ast",
                          action="store_true", dest="dump_ast", default=False,
                          help="dump AST after source is parsed")

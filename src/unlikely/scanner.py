@@ -5,6 +5,7 @@ Lexical scanner for the Unlikely programming language.
 $Id: scanner.py 318 2010-01-07 01:49:38Z cpressey $
 """
 
+
 class Scanner(object):
     """
     A lexical scanner.
@@ -58,10 +59,10 @@ class Scanner(object):
             self._token = self._input[0]
             self._input = self._input[1:]
             self.toktype = "op"
-    
+
     def get_token(self):
         return self._token
-    
+
     token = property(get_token)
 
     def expect(self, str):

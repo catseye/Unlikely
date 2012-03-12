@@ -7,8 +7,9 @@ $Id: parser.py 318 2010-01-07 01:49:38Z cpressey $
 Based on the following EBNF grammar:
 
 ClassBase   ::= {ClassDefn}.
-ClassDefn   ::= "class" ClassName<NEW> "(" [ClassName {"," ClassName}] ")" "extends" ClassName
-                ["{" {PropDefn} {MethodDefn} "}"] ["is" ClassMod {"and" ClassMod}].
+ClassDefn   ::= "class" ClassName<NEW> "(" [ClassName {"," ClassName}] ")"
+                "extends" ClassName ["{" {PropDefn} {MethodDefn} "}"]
+                ["is" ClassMod {"and" ClassMod}].
 ClassMod    ::= "final" | "saturated" | "abstract".
 PropDefn    ::= ClassName PropName<NEW> ";".
 MethodDefn  ::= "method" MethodName<NEW> "(" [ParamDecl {"," ParamDecl}] ")"
@@ -19,10 +20,10 @@ Continue    ::= "goto" PropName "." MethodName "(" [Expr {"," Expr}] ")" ";".
 Expr        ::= ConstrExpr | QualName.
 ConstrExpr  ::= "new" (ClassName) "(" [ClassName {"," ClassName}] ")".
 QualName    ::= PropName {"." PropName}.
-Constant    ::= <<sequence of decimal digits>> | <<sequence of arbitrary characters between double quotes>>.
+Constant    ::= <<sequence of decimal digits>>
+              | <<sequence of arbitrary characters between double quotes>>.
 """
 
-import ast
 
 class Parser(object):
     """A recursive-descent parser for Unlikely.
@@ -53,9 +54,6 @@ class ClassBaseParser(Parser):
 
 
 class ClassDefnParser(Parser):
-    # ClassDefn ::= "class" ClassName<NEW> "(" [ClassName {"," ClassName}] ")" "extends" ClassName
-    #               ["{" {PropDefn} {MethodDefn} "}"] ["is" ClassMod {"and" ClassMod}].
-
     def __init__(self, scanner, classbase):
         Parser.__init__(self, scanner)
         self.classbase = classbase
@@ -99,8 +97,6 @@ class ClassDefnParser(Parser):
 
 
 class PropDefnParser(Parser):
-    # PropDefn ::= ClassName PropName<NEW> ";".
-
     def __init__(self, scanner, class_defn):
         Parser.__init__(self, scanner)
         self.class_defn = class_defn
@@ -113,13 +109,10 @@ class PropDefnParser(Parser):
 
 
 class MethodDefnParser(Parser):
-    # MethodDefn ::= "method" MethodName<NEW> "(" [ParamDecl {"," ParamDecl}] ")"
-    #                ("{" {Assignment} Continue "}" | "is" "abstract").
-
     def __init__(self, scanner, class_defn):
         Parser.__init__(self, scanner)
         self.class_defn = class_defn
-  
+
     def parse(self):
         self.scanner.expect("method")
         method_name = self.scanner.grab()
@@ -146,12 +139,11 @@ class MethodDefnParser(Parser):
                 self.scanner.expect("and")
                 method_defn.add_modifier(self.scanner.grab())
         else:
-            self.scanner.error("expected '{' or 'is', but found " + token)
+            self.scanner.error("expected '{' or 'is', but found " +
+                               self.scanner.token)
 
 
 class ParamDeclParser(Parser):
-    # ParamDecl ::= ClassName PropName.
-
     def __init__(self, scanner, method_defn):
         Parser.__init__(self, scanner)
         self.method_defn = method_defn
@@ -159,12 +151,10 @@ class ParamDeclParser(Parser):
     def parse(self):
         type_class_name = self.scanner.grab()
         prop_name = self.scanner.grab()
-        param_decl = self.method_defn.add_param_decl_by_name(prop_name, type_class_name)
+        self.method_defn.add_param_decl_by_name(prop_name, type_class_name)
 
 
 class AssignmentParser(Parser):
-    # Assignment ::= QualName "=" Expr ";".
-
     def __init__(self, scanner, method_defn):
         Parser.__init__(self, scanner)
         self.method_defn = method_defn
@@ -180,8 +170,6 @@ class AssignmentParser(Parser):
 
 
 class ContinueParser(Parser):
-    # Continue ::= "goto" PropName "." MethodName "(" [Expr {"," Expr}] ")" ";".
-
     def __init__(self, scanner, method_defn):
         Parser.__init__(self, scanner)
         self.method_defn = method_defn
@@ -197,10 +185,10 @@ class ContinueParser(Parser):
         self.scanner.expect("(")
         expr_parser = ExprParser(self.scanner, continue_)
         if self.scanner.token != ")":
-            param_expr = expr_parser.parse()
+            expr_parser.parse()
             while self.scanner.token == ",":
                 self.scanner.expect(",")
-                param_expr = expr_parser.parse()
+                expr_parser.parse()
         self.scanner.expect(")")
         self.scanner.expect(";")
         continue_.typecheck()
@@ -208,8 +196,6 @@ class ContinueParser(Parser):
 
 
 class ExprParser(Parser):
-    # Expr ::= ConstrExpr | QualName.
-
     def __init__(self, scanner, parent):
         Parser.__init__(self, scanner)
         self.parent = parent
@@ -223,8 +209,6 @@ class ExprParser(Parser):
 
 
 class ConstructionParser(Parser):
-    # ConstrExpr ::= "new" (ClassName) "(" [ClassName {"," ClassName}] ")".
-
     def __init__(self, scanner, parent):
         Parser.__init__(self, scanner)
         self.parent = parent
@@ -244,8 +228,6 @@ class ConstructionParser(Parser):
 
 
 class QualNameParser(Parser):
-    # QualName ::= PropName {"." PropName}.
-
     def __init__(self, scanner, parent):
         Parser.__init__(self, scanner)
         self.parent = parent

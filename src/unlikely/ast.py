@@ -5,52 +5,66 @@ Abstract Syntax Trees for the Unlikely programming language.
 $Id: ast.py 318 2010-01-07 01:49:38Z cpressey $
 """
 
+
 class ArtefactExistsError(Exception):
-    """An exception indicating that a proposed artefact (class, method, property, ...) already exists."""
+    """An exception indicating that a proposed artefact (class, method,
+    property, ...) already exists.
+
+    """
     pass
 
+
 class ArtefactNotFoundError(Exception):
-    """An exception indicating that a needed artefact (class, method, property, ...) does not exist."""
+    """An exception indicating that a needed artefact (class, method,
+    property, ...) does not exist.
+
+    """
     pass
+
 
 class BadModifierError(Exception):
     """An exception indicating that a specified modifier is not valid."""
     pass
 
+
 class IncompatibleTypeError(Exception):
-    """An exception indicating that the types of two connected subexpressions not compatible."""
+    """An exception indicating that the types of two connected subexpressions
+    are not compatible.
+
+    """
     pass
 
+
 class ClassRelationshipError(Exception):
-    """An exception indicating that the specified relationship between two classes is illegal."""
+    """An exception indicating that the specified relationship between two
+    classes is illegal.
+
+    """
     pass
 
 
 class AST:
-    """
-    Class representing nodes in an abstract syntax tree.
-    """
+    """Class representing nodes in an abstract syntax tree."""
     pass
 
 
 class ClassBase(AST):
-    """
-    A collection of Unlikely class definitions.
-    """
+    """A collection of Unlikely class definitions."""
     def __init__(self):
         self.class_defn_map = {}
-    
+
     def __str__(self):
         s = ""
         for class_name in self.class_defn_map:
             s = s + str(self.class_defn_map[class_name]) + " "
         return "ClassBase { " + s + "}"
 
-    def add_class_defn_by_name(self, class_name, superclass_name=None, modifiers=None):
-        """
-        A factory method.  Call this instead of ClassDefn().
+    def add_class_defn_by_name(self, class_name, superclass_name=None,
+                               modifiers=None):
+        """A factory method.  Call this instead of ClassDefn().
         If a class was declared forward, this will return the stub.
         The third and fourth arguments are conveniences for stdlib.
+
         """
         if class_name in self.class_defn_map:
             class_defn = self.class_defn_map[class_name]
@@ -64,18 +78,10 @@ class ClassBase(AST):
             class_defn.set_superclass_by_name(superclass_name)
         return class_defn
 
-    def add_forward_class_defn_by_name(self, class_name):
-        if class_name in self.class_defn_map:
-            raise ArtefactExistsError, "class " + class_name
-        superclass_defn = self.lookup_class_defn(superclass_name)
-        class_defn = ClassDefn(self, class_name, superclass_defn, modifiers)
-        self.class_defn_map[class_name] = class_defn
-        return class_defn
-
     def lookup_class_defn(self, class_name):
         if class_name in self.class_defn_map:
             return self.class_defn_map[class_name]
-        raise ArtefactNotFoundError, "class " + class_name
+        raise ArtefactNotFoundError("class " + class_name)
 
 
 class ClassDefn(AST):
@@ -122,19 +128,25 @@ class ClassDefn(AST):
         superclass = self.classbase.lookup_class_defn(superclass_name)
         if not self.has_modifier("forcible"):
             if superclass.has_modifier("final"):
-                raise ClassRelationshipError, "cannot inherit from final " + superclass_name
-        if self.superclass is not None and self.superclass.name != superclass_name:
-            raise ClassRelationshipError, "class " + self.name + " already has superclass " + self.superclass.name
+                raise ClassRelationshipError("cannot inherit from final " +
+                                             superclass_name)
+        if (self.superclass is not None and
+            self.superclass.name != superclass_name):
+            raise ClassRelationshipError("class " + self.name +
+                                         " already has superclass " +
+                                         self.superclass.name)
         self.superclass = superclass
         if len(self.dependant_names) == 0:
             for dependant_name in superclass.dependant_names:
                 self.dependant_names.append(dependant_name)
-                self.dependant_map[dependant_name] = superclass.dependant_map[dependant_name]
+                self.dependant_map[dependant_name] = \
+                  superclass.dependant_map[dependant_name]
         return superclass
 
     def add_dependant_by_name(self, dependant_name):
         if dependant_name in self.dependant_map:
-            raise ClassRelationshipError, "dependant " + dependant_name + " already declared"
+            raise ClassRelationshipError("dependant " + dependant_name +
+                                         " already declared")
         dependant = self.classbase.lookup_class_defn(dependant_name)
         self.dependant_map[dependant.name] = dependant
         self.dependant_names.append(dependant.name)
@@ -153,27 +165,30 @@ class ClassDefn(AST):
             self.prop_defn_map[prop_name] = prop_defn
             prop_defn.type_class_defn = self.lookup_class_defn(type_class_name)
             return prop_defn
-        raise ArtefactExistsError, "property " + prop_defn.name
+        raise ArtefactExistsError("property " + prop_defn.name)
 
     def add_method_defn_by_name(self, method_name):
         """
         Factory method.  Call this instead of MethodDefn().
         """
         if method_name in self.method_defn_map:
-            raise ArtefactExistsError, "method " + method_defn.name
+            raise ArtefactExistsError("method " + method_name)
         try:
             overridden_method_defn = self.lookup_method_defn(method_name)
         except ArtefactNotFoundError:
             overridden_method_defn = None
-        if self.is_saturated() and overridden_method_defn is None and self.superclass is not None:
-            raise ClassRelationshipError, "new method " + method_name + " not allowed on saturated " + self.name
+        if (self.is_saturated() and overridden_method_defn is None and
+            self.superclass is not None):
+            raise ClassRelationshipError("new method " + method_name +
+                                         " not allowed on saturated " +
+                                         self.name)
         method_defn = MethodDefn(self, method_name)
         self.method_defn_map[method_defn.name] = method_defn
         return method_defn
 
     def add_modifier(self, modifier):
-        if modifier not in ["final", "saturated", "abstract","forcible"]:
-            raise BadModifierError, modifier
+        if modifier not in ["final", "saturated", "abstract", "forcible"]:
+            raise BadModifierError(modifier)
         self.modifiers.append(modifier)
 
     def has_modifier(self, modifier):
@@ -185,11 +200,12 @@ class ClassDefn(AST):
         return True
 
     def lookup_class_defn(self, class_name):
-        """
-        Note that this first looks up the class definition in the dependant classes
-        of this class: all classes referred to by a class *must* be injected!
-        And then the dependants of the superclass of this class.
-        This doesn't apply for final classes, since injecting them doesn't make any sense.
+        """Note that this first looks up the class definition in the dependant
+        classes of this class: all classes referred to by a class *must* be
+        injected!  And then the dependants of the superclass of this class.
+        This doesn't apply for final classes, since injecting them doesn't
+        make any sense.
+
         """
         if class_name[0].isdigit():
             class_defn = self.classbase.add_class_defn_by_name(class_name)
@@ -210,21 +226,21 @@ class ClassDefn(AST):
         class_defn = self.classbase.lookup_class_defn(class_name)
         if class_defn is not None and not class_defn.must_be_injected():
             return class_defn
-        raise ArtefactNotFoundError, "dependant class " + class_name
+        raise ArtefactNotFoundError("dependant class " + class_name)
 
     def lookup_prop_defn(self, prop_name):
         if prop_name in self.prop_defn_map:
             return self.prop_defn_map[prop_name]
         if self.superclass is not None:
             return self.superclass.lookup_prop_defn(prop_name)
-        raise ArtefactNotFoundError, "property " + prop_name
+        raise ArtefactNotFoundError("property " + prop_name)
 
     def lookup_method_defn(self, method_name):
         if method_name in self.method_defn_map:
             return self.method_defn_map[method_name]
         if self.superclass is not None:
             return self.superclass.lookup_method_defn(method_name)
-        raise ArtefactNotFoundError, "method " + method_name
+        raise ArtefactNotFoundError("method " + method_name)
 
     def is_subclass_of(self, class_defn):
         if self == class_defn:
@@ -259,15 +275,18 @@ class ClassDefn(AST):
         if not self.has_modifier("abstract"):
             for method_defn_name in map:
                 if map[method_defn_name].has_modifier("abstract"):
-                    message = "concrete class " + self.name + " does not implement abstract method " + method_defn_name
-                    raise ClassRelationshipError, message
+                    message = ("concrete class " + self.name +
+                               " does not implement abstract method " +
+                               method_defn_name)
+                    raise ClassRelationshipError(message)
         else:
             all_concrete = True
             for method_defn_name in map:
                 if map[method_defn_name].has_modifier("abstract"):
                     all_concrete = False
             if all_concrete:
-                raise ClassRelationshipError, "abstract class " + self.name + " has no abstract methods"
+                raise ClassRelationshipError("abstract class " + self.name +
+                                             " has no abstract methods")
 
 
 class PropDefn(AST):
@@ -318,11 +337,14 @@ class MethodDefn(AST):
         Factory method.  Call this instead of ParamDecl().
         """
         if param_name in self.param_decl_map:
-            raise ArtefactExistsError, "param " + param_name
+            raise ArtefactExistsError("param " + param_name)
         prop_defn = self.lookup_prop_defn(param_name)
         type_class_defn = self.lookup_class_defn(type_class_name)
         if prop_defn.type_class_defn != type_class_defn:
-            raise IncompatibleTypeError, param_name + " param is a " + type_class_name + " but property is a " + prop_defn.type_class_defn.name
+            raise IncompatibleTypeError(param_name + " param is a " +
+                                        type_class_name +
+                                        " but property is a " +
+                                        prop_defn.type_class_defn.name)
         param_decl = ParamDecl(self, param_name, type_class_defn)
         self.param_decl_map[param_name] = param_decl
         self.param_names.append(param_name)
@@ -338,7 +360,7 @@ class MethodDefn(AST):
 
     def add_modifier(self, modifier):
         if modifier not in ["abstract"]:
-            raise BadModifierError, modifier
+            raise BadModifierError(modifier)
         self.modifiers.append(modifier)
 
     def has_modifier(self, modifier):
@@ -358,7 +380,7 @@ class MethodDefn(AST):
 
     def lookup_prop_defn(self, prop_name):
         return self.class_defn.lookup_prop_defn(prop_name)
-    
+
     def get_param_decl_by_index(self, index):
         param_name = self.param_names[index]
         param_decl = self.param_decl_map[param_name]
@@ -437,17 +459,19 @@ class Continue(AST):
 
     def typecheck(self):
         if len(self.param_exprs) != len(self.method_defn.param_names):
-            message = "continue provides " + str(len(self.param_exprs))
-            message += " params, " + str(len(self.method_defn.param_names)) + " needed"
-            raise IncompatibleTypeError, message
+            message = ("continue provides " + str(len(self.param_exprs)) +
+                       " params, " + str(len(self.method_defn.param_names)) +
+                       " needed")
+            raise IncompatibleTypeError(message)
         i = 0
         for param_expr in self.param_exprs:
             param_decl = self.method_defn.get_param_decl_by_index(i)
             arg_type_class_defn = param_expr.get_type_class_defn()
             param_type_class_defn = param_decl.type_class_defn
             if not arg_type_class_defn.is_subclass_of(param_type_class_defn):
-                message = arg_type_class_defn.name + " not a subclass of " + param_type_class_defn.name
-                raise IncompatibleTypeError, message
+                message = (arg_type_class_defn.name + " not a subclass of " +
+                           param_type_class_defn.name)
+                raise IncompatibleTypeError(message)
             i += 1
 
 
@@ -458,7 +482,8 @@ class Construction(AST):
     def __init__(self, parent, type_class_name):
         assert isinstance(parent, Assignment) or isinstance(parent, Continue)
         self.parent = parent
-        self.type_class_defn = self.parent.method_defn.lookup_class_defn(type_class_name)
+        self.type_class_defn = \
+          self.parent.method_defn.lookup_class_defn(type_class_name)
         self.dependencies = []
 
     def add_dependency_by_name(self, class_name):
@@ -471,16 +496,20 @@ class Construction(AST):
 
     def typecheck(self):
         if len(self.dependencies) != len(self.type_class_defn.dependant_names):
-            message = "instantiation specifies " + str(len(self.dependencies))
-            message += " classes, " + str(len(self.type_class_defn.dependant_names)) + " needed ("
-            message += ",".join(self.type_class_defn.dependant_names) + ")"
-            raise IncompatibleTypeError, message
+            message = ("instantiation specifies " +
+                       str(len(self.dependencies)) + " classes, " +
+                       str(len(self.type_class_defn.dependant_names)) +
+                       " needed (" +
+                       ",".join(self.type_class_defn.dependant_names) + ")")
+            raise IncompatibleTypeError(message)
         i = 0
         for dependency in self.dependencies:
-            dependant_class_defn = self.type_class_defn.get_dependant_by_index(i)
+            dependant_class_defn = \
+              self.type_class_defn.get_dependant_by_index(i)
             if not dependency.is_subclass_of(dependant_class_defn):
-                message = dependency.name + " not a subclass of " + dependant_class_defn.name
-                raise IncompatibleTypeError, message
+                message = (dependency.name + " not a subclass of " +
+                           dependant_class_defn.name)
+                raise IncompatibleTypeError(message)
             i += 1
 
 
