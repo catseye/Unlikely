@@ -1,0 +1,30 @@
+class Count(Count,Chain,GreaterThan,If,Print,Subtract,Stop) extends Continuation
+
+class Countdown(Count,Chain,GreaterThan,If,Print,Subtract,Stop) extends Program {
+  Count c;
+  method continue(Passive accumulator) {
+    c = new Count(Passive,Count,Chain,GreaterThan,If,Print,Subtract,Stop);
+    goto c.continue(new 99(Passive));
+  }
+}
+
+class Count() extends Continuation {
+  If i;
+  GreaterThan g;
+  Subtract m;
+  Print p;
+  method continue(Passive accumulator) {
+    i = new If(Passive,Chain);
+    i.next = new Count(Passive,Count,Chain,GreaterThan,If,Print,Subtract,Stop);
+    i.else = new Stop(Passive);
+    g = new GreaterThan(Passive,Chain);
+    g.value = new 0(Passive);
+    g.next = i;
+    m = new Subtract(Passive,Chain);
+    m.value = accumulator;
+    m.next = g;
+    p = new Print(Passive,Chain);
+    p.next = m;
+    goto p.continue(new 1(Passive));
+  }
+}

@@ -1,0 +1,8 @@
+class Hello(Print,Chain,Stop) extends Program {
+  Print p;
+  method continue(Passive accumulator) {
+    p = new Print(Passive,Chain);
+    p.next = new Stop(Passive);
+    goto p.continue(new "Hello, world!"(Passive));
+  }
+}

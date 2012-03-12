@@ -1,0 +1,9 @@
+class LoopForever(LoopForever,Print,Chain) extends Program {
+  LoopForever lf;
+  Print p;
+  method continue(Passive accumulator) {
+    p = new Print(Passive,Chain);
+    p.next = new LoopForever(Passive,LoopForever,Print,Chain);
+    goto p.continue(new 1(Passive));
+  }
+}
