@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# (c)2010-2012 Chris Pressey, Cat's Eye Technologies.
+# All rights reserved.  Released under a BSD-style license (see LICENSE).
+
 """
 Pre-built AST representing built-in Unlikely classes.
-$Id: stdlib.py 318 2010-01-07 01:49:38Z cpressey $
 """
 
 import ast

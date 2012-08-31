@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+# (c)2010-2012 Chris Pressey, Cat's Eye Technologies.
+# All rights reserved.  Released under a BSD-style license (see LICENSE).
+
 """
 Parser for the Unlikely programming language.
-$Id: parser.py 318 2010-01-07 01:49:38Z cpressey $
+
+(c)2010-2012 Chris Pressey, Cat's Eye Technologies.
+All rights reserved.  Released under a BSD-style license (see LICENSE).
 
 Based on the following EBNF grammar:
 

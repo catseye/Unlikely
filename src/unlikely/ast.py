@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# (c)2010-2012 Chris Pressey, Cat's Eye Technologies.
+# All rights reserved.  Released under a BSD-style license (see LICENSE).
+
 """
 Abstract Syntax Trees for the Unlikely programming language.
 $Id: ast.py 318 2010-01-07 01:49:38Z cpressey $
