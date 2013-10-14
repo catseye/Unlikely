@@ -1,0 +1,56 @@
+// Despite much work, this is still such garbage.
+
+class Fibonacci(Print,Input,Stop,FibLhs,FibRhs) extends Program {
+  FibLhs fl;
+  Print p;
+  Input i;
+  method continue(Passive accumulator) {
+    p = new Print(Continuation);
+    p.next = new Stop();
+    fl = new FibLhs(FibLhs,FibRhs);
+    fl.next = p
+    i = new Input(Continuation);
+    i.next = fl;
+    goto i.continue(accumulator);
+  }
+}
+
+class FibLhs(FibLhs,FibRhs) extends Continuation {
+  Continuation next;
+  FibLhs fl;
+  FibRhs fr;
+  
+  method continue(Passive accumulator) {
+    i = new IfOneOrZero()
+    cw = new ContinueWithOne()
+    cw.next = next
+    i.trueBranch = cw
+    i.falseBranch = 
+          fl = new FibLhs(FibLhs,FibRhs)
+          fr = new FibRhs(FibLhs,FibRhs)
+          fr.value = n - 2
+          fr.next = next
+          fl.next = fr
+          goto f.continue(n - 1)
+  }
+}
+
+class FibRhs(Continuation,Passive,Add,Fib) extends Continuation {
+  Continuation next;
+  Passive arg;
+  method continue(Passive accumulator) {
+    a = new Add(~,~)
+    a.next = next
+    a.lhs = accumulator
+    f = new Fib(~,~,~,~)
+    f.next = a
+    goto f.continue(arg);
+  }
+}
+
+class ContinueWithOne() extends Continuation {
+  Continuation next;
+  method continue(Passive accumulator) {
+    goto next.continue(1);
+  }
+}
