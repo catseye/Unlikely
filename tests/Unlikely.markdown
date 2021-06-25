@@ -5,7 +5,11 @@ Tests for Unlikely
 
     -> Functionality "Parse Unlikely Program" is implemented by
     -> shell command
-    -> "python src/coldwater.py %(test-body-file)"
+    -> "python2 src/coldwater.py %(test-body-file)"
+
+    -> Functionality "Parse Unlikely Program" is implemented by
+    -> shell command
+    -> "python3 src/coldwater.py %(test-body-file)"
 
 Here is a syntactically correct program.
 

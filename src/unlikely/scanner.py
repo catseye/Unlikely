@@ -13,12 +13,12 @@ class Scanner(object):
     A lexical scanner.
     """
 
-    def __init__(self, input):
+    def __init__(self, input_):
         """
         Create a new Scanner object that will consume the given
         UTF-8 encoded input string.
         """
-        self._input = unicode(input, 'utf-8')
+        self._input = input_.decode('utf-8')
         self._token = None
         self.scan()
 
@@ -89,5 +89,5 @@ class Scanner(object):
         """
         Log the given scan error.
         """
-        print "error: " + str
+        print("error: " + str)
         self.scan()
