@@ -17,14 +17,14 @@ from unlikely.stdlib import stdlib
 
 
 def load(filename, options):
-    f = open(filename, "r")
+    f = open(filename, "rb")
     scanner = Scanner(f.read())
     f.close()
     parser = ClassBaseParser(scanner, stdlib)
     parser.parse()
     if options.dump_ast:
-        print "---AST---"
-        print str(stdlib)
+        print("---AST---")
+        print(str(stdlib))
 
 
 def main(argv):

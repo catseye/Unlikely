@@ -3,10 +3,6 @@ Tests for Unlikely
 
     -> Tests for functionality "Parse Unlikely Program"
 
-    -> Functionality "Parse Unlikely Program" is implemented by
-    -> shell command
-    -> "python src/coldwater.py %(test-body-file)"
-
 Here is a syntactically correct program.
 
     | class Count(Count,Chain,Print,Add) extends Continuation

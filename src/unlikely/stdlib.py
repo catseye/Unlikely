@@ -7,9 +7,9 @@
 Pre-built AST representing built-in Unlikely classes.
 """
 
-import ast
+from .ast import ClassBase
 
-stdlib = ast.ClassBase()
+stdlib = ClassBase()
 
 continuation = stdlib.add_class_defn_by_name("Continuation", None,
                                              ["saturated", "abstract"])
