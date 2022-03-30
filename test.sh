@@ -20,4 +20,4 @@ if [ "x${MISSING}" = "x23" ]; then
     exit 1
 fi
 
-falderal $APPLIANCES tests/Unlikely.markdown || exit 1
+falderal $APPLIANCES tests/Unlikely.md || exit 1
